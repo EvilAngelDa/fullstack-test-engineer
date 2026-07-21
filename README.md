@@ -56,7 +56,7 @@ so clones stay clean and privacy-safe.
 ### Option A — Grok (user skill)
 
 ```bash
-git clone https://github.com/<you>/fullstack-test-engineer.git \
+git clone https://github.com/EvilAngelDa/fullstack-test-engineer.git \
   ~/.grok/skills/fullstack-test-engineer
 ```
 
