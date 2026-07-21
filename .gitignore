@@ -1,0 +1,24 @@
+# Runtime / local
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.xlsx
+!examples/**/*.xlsx
+
+# Never commit redacted working copies with secrets
+*.redacted
+.env
+.env.*
+secrets/
+private/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# Local deliverables people might drop here by mistake
+deliverables/
+/tmp/
