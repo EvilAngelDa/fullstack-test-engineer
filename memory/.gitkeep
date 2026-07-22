@@ -1,2 +1,4 @@
-# Runtime memory is stored under $HOME/.fullstack-test-engineer/memory/
-# This folder is a placeholder only.
+# PLACEHOLDER ONLY — do not put real memory here.
+# Runtime memory: $HOME/.fullstack-test-engineer/memory/<workspace-id>.md
+# First use on any machine: empty. Grows via scripts/memory.py update after runs.
+# Never commit case xlsx or case bodies into this skill repo.

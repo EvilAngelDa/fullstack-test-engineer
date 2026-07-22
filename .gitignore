@@ -4,10 +4,16 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Never commit case libraries or local memory dumps
 *.xlsx
 !examples/**/*.xlsx
+**/*测试用例*.xlsx
+**/*_cases.xlsx
+memory/*.md
+!memory/.gitkeep
 
-# Never commit redacted working copies with secrets
+# Secrets / redacted
 *.redacted
 .env
 .env.*
@@ -19,6 +25,6 @@ private/
 .vscode/
 *.swp
 
-# Local deliverables people might drop here by mistake
+# Local deliverables dropped by mistake
 deliverables/
 /tmp/

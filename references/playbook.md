@@ -37,17 +37,28 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 8. Empty core object often means **hide whole module**; empty leaf string often means **hide that row only**.
 9. Empty modal body when title is FE-fixed: fallback copy vs blank → always 产品确认.
 
+## Cross-module (same page / product family)
+
+1. List sibling modules before scoping cases; note layout order and shared entity id.
+2. Entity switch: all modules that bind the entity must refresh; no cross-talk of stale UI.
+3. Sibling APIs often share `version` / `deviceType` (or equivalent) — reuse required-param matrices.
+4. One module API fail may hide only that module; do not assume whole page fails unless PRD says so.
+5. Memory category `CrossModule` is for these links — not for dumping multi-module case sheets.
+
 ## Process
 
 1. Always list **待补充信息** instead of inventing business fixtures.
-2. Export both human-readable summary and template-compatible xlsx when a template exists.
+2. Export both human-readable summary and template-compatible xlsx when a template exists — **into user workspace only**.
 3. Run privacy scrub before any public share.
-4. After delivery, write 2–8 generalized memory patterns via `scripts/memory.py update`.
+4. After delivery, **mandatory** `scripts/memory.py update` with 2–8 **generalized** patterns (no case xlsx, no case IDs).
 5. When API+UI both present, deliver 外显字段映射表 in 交付说明.
+6. Never commit local memory or real project cases into the skill repository.
+7. First `snapshot` empty on a new machine is normal.
 
 ## Suggested future upgrades (agents may add below)
 
-<!-- AUTO-UPGRADE: append dated bullets, no secrets -->
+<!-- AUTO-UPGRADE: append dated bullets, no secrets, no case libraries -->
 
 - 2026-07-21: Initial playbook from FE expand/collapse + API conclusion-module style work (sanitized).
 - 2026-07-22: Display-field abnormal matrix (int/string/array/object + single-line/scroll/modal patterns).
+- 2026-07-22: Memory isolation + CrossModule patterns; cases stay in user workspace only.

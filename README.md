@@ -20,7 +20,9 @@ Most agents dump generic test ideas. This skill enforces a **senior QA workflow*
 | Layer split | Auto-separate **Frontend / API / Content / NF** |
 | Template-native cases | Columns compatible with common case-import Excel |
 | **Display-field abnormal** | UI-visible API fields: int/string/[]/{} abnormal + ellipsis/scroll/modal |
-| Experience upgrade | Local memory of generalized patterns across runs |
+| **Local memory only** | `$HOME/.fullstack-test-engineer/memory/` — not in git; **empty on first use**; grows after each run |
+| **No shipped cases** | Real project xlsx stay in your workspace; skill ships methodology + fictional examples |
+| **Cross-module** | Remembers module links (layout/entity/params) via `CrossModule` patterns |
 | Publish-safe | Privacy scanner before GitHub |
 
 ---
@@ -42,13 +44,16 @@ fullstack-test-engineer/
 └── memory/                  # Placeholder (runtime memory is under $HOME)
 ```
 
-Runtime learning data is stored **outside the repo**:
+Runtime learning data is stored **outside the repo** (per machine, per workspace):
 
 ```text
 $HOME/.fullstack-test-engineer/memory/<workspace-id>.md
 ```
 
-so clones stay clean and privacy-safe.
+- **Not included** when someone clones this skill from GitHub.  
+- **First run:** empty memory is normal.  
+- **After each successful run:** skill updates memory with generalized lessons (never full test cases).  
+- Your project case files stay under **your** project directory only.
 
 ---
 

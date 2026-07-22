@@ -32,8 +32,10 @@ except ImportError:  # Windows fallback: no flock
 DEFAULT_HEADER = [
     "# Full-Stack QA Experience Memory",
     "",
-    "> Maintained by the fullstack-test-engineer skill.",
-    "> Store only generalized, privacy-safe patterns (no hosts, tokens, PII, internal paths).",
+    "> Maintained by the fullstack-test-engineer skill on THIS machine only.",
+    "> Not shipped with the skill git repo. First run: empty patterns is normal.",
+    "> Store only generalized, privacy-safe patterns (no hosts, tokens, PII, case xlsx, case IDs).",
+    "> Prefer CrossModule patterns when page modules share entity context or layout.",
     "> Shared across worktrees that resolve to the same workspace id.",
     "",
 ]
@@ -44,6 +46,7 @@ CATEGORIES_ORDER = [
     "Requirements",
     "API",
     "Frontend",
+    "CrossModule",
     "Content",
     "Compatibility",
     "Security",
@@ -331,8 +334,24 @@ _SENSITIVE = re.compile(
 )
 
 
+# Reject case-library dumps and project case IDs (experience only, not cases)
+_CASE_DUMP = re.compile(
+    r"(?i)(\.xlsx\b|用例名称|步骤描述|SUP-[A-Z]*-?\d{2,}|"
+    r"【展示】|【异常】\[SUP|"
+    r"testcase\s*id\s*[:=])"
+)
+
+
 def _looks_sensitive(text: str) -> bool:
-    return bool(_SENSITIVE.search(text or ""))
+    t = text or ""
+    if _SENSITIVE.search(t):
+        return True
+    if _CASE_DUMP.search(t):
+        return True
+    # overly long = likely pasted case body
+    if len(t) > 240:
+        return True
+    return False
 
 
 def cmd_path() -> int:

@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.1.0"
+  version: "1.2.0"
   compatible-agents:
     - grok
     - codex
@@ -48,6 +48,9 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
 5. Deliverables must be readable by **product, dev, and QA**.
 6. **Privacy-safe by default** (see Privacy). Never write secrets, internal hosts, personal paths, or real PII into cases or memory.
 7. **Display-field abnormal coverage (mandatory).** For every API response field that is **shown on the UI (前端外显)**, generate type-based abnormal cases (int / string / array / object) **and** display-shape cases (single-line ellipsis / multi-line / scroll / modal). See `references/display-field-abnormal-matrix.md`. Do not only write happy-path mapping.
+8. **Experience only — never ship cases with the skill.** Write case files only into the **user project workspace**. Never copy user xlsx/case libraries into `SKILL_ROOT`, `examples/`, or git of this skill. Skill repo = methodology + fictional samples only.
+9. **Local memory per machine / workspace.** Memory lives under `$HOME/.fullstack-test-engineer/memory/` (not in git). Others’ first run is **empty** — that is normal. After every successful delivery, **must** `memory.py update` with generalized patterns so the next run on that machine learns. See `references/memory-and-isolation.md`.
+10. **Cross-module linkage.** Modules on the same page/product often share entity context, layout order, params, or hide rules. When designing cases, **load memory first** and record/reuse `CrossModule` patterns so later modules stay consistent with earlier ones in the same workspace.
 
 ## Boot Sequence (every run)
 
@@ -64,21 +67,31 @@ Helper paths:
 
 ### Step 1 — Load experience memory (auto-upgrade input)
 
-From the **workspace root** (user project), run:
+From the **user project workspace root** (not from skill install path as cwd if avoidable), run:
 
 ```bash
 python3 "${SKILL_ROOT}/scripts/memory.py" snapshot
 ```
 
-If success and `common_patterns` non-empty, inject a short block into your planning:
+Interpret result:
+
+| `exists` / patterns | Meaning | Action |
+|---------------------|---------|--------|
+| `exists=false` or empty `common_patterns` | **First use on this machine/workspace** | Proceed with empty memory; do not treat as error |
+| has patterns | Prior local runs | Inject top patterns (count≥1 ok; prefer count≥2) into planning |
+| helper fails | IO/permission | Continue without memory |
+
+Inject block when non-empty:
 
 ```text
-## Past QA Patterns (from skill memory)
+## Past QA Patterns (local memory only — not from skill author)
 - ...
-Prefer applying high-count patterns; do not invent project-specific facts from memory.
+## CrossModule patterns (if any)
+- ...
+Apply as reusable method; do not invent project facts; do not paste old case text into new xlsx blindly.
 ```
 
-If helper fails → continue without memory (never block the run).
+**Never** read or require the skill author’s `$HOME` memory. **Never** commit memory files into the skill package.
 
 ### Step 2 — Inventory inputs
 
@@ -91,8 +104,11 @@ List what the user provided. For each file/path:
 | Prototype / screenshot | visual elements, interactions, copy on UI |
 | Excel/CSV template | exact columns, merge rules, priority enum |
 | Existing cases | avoid duplicates; extend coverage |
+| Sibling modules on same page | order, shared entity, shared params, linked show/hide |
 
 **Classify every requirement line** as `FE` / `API` / `CONTENT` / `NF` / `UNCLEAR`.
+
+**Cross-module pass:** If screenshot/PRD shows multiple modules, list them and note dependencies before writing cases for the target module only (still scope to user request, but do not ignore linkage risks).
 
 **Build 外显字段映射表** (when API doc + UI exist):
 
@@ -140,9 +156,11 @@ Prefer writing:
 
 ```bash
 python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
-  --out "<workspace>/deliverables/<name>_cases.xlsx" \
+  --out "<USER_WORKSPACE>/deliverables/<name>_cases.xlsx" \
   --cases-json /tmp/cases.json
 ```
+
+`<USER_WORKSPACE>` = current project path. **Do not** write under `~/.grok/skills/fullstack-test-engineer/` or the skill git clone’s tree (except temporary).
 
 #### API case coverage checklist
 
@@ -179,7 +197,7 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
   - object 少字段：不报错、有几个展示几个、行内居左等布局
   - 核心 object 为空 `{}`：整模块不展示（若该块为核心数据）
 
-#### Pattern examples (generalized from co-creation board style modules)
+#### Pattern examples (generic field names only — not a shipped case library)
 
 Use as **templates**, rename fields to the current API:
 
@@ -202,43 +220,48 @@ python3 "${SKILL_ROOT}/scripts/scrub_privacy.py" --path "<file-or-dir>" --report
 
 Fix any HIGH findings before GitHub. See `references/privacy-redaction.md`.
 
-### Step 6 — Experience upgrade (auto-learn)
+### Step 6 — Experience upgrade (auto-learn, **mandatory after success**)
 
-After delivering cases/analysis, **generalize** 2–8 reusable lessons (no project secrets, no hostnames, no personal data):
+After delivering cases/analysis (or gap reviews), **always** update **local** memory. This is how the **current user** accumulates experience; other machines start empty until they run updates themselves.
 
-Examples of good patterns:
+**Generalize** 2–8 lessons. Prefer including **≥1 CrossModule** pattern when multiple modules appear on the page or APIs share params.
+
+Good patterns (examples):
 
 - “FE: when PRD conflicts hide-module vs show-fallback-text, prefer explicit 验收标准 and flag conflict”
 - “API: empty string and missing query param often share same 400 message — cover both”
-- “Always separate CONTENT quality rules from FE display rules unless user asks both”
 - “Display fields: int cover neg/zero/pos; string empty/long/special; array empty/1/many; object empty/partial/extra keys”
 - “Single-line overflow uses ellipsis; modal long text uses fixed height + scroll”
+- “CrossModule: sibling modules bind same entity id; entity switch must refresh all without cross-talk”
+- “CrossModule: shared query params (version/deviceType) — reuse required-param matrix across sibling APIs”
 
-Update memory:
+**Forbidden in memory:**
+
+- Full case steps / expects / xlsx dumps / case IDs (`SUP-xx`)
+- Product secrets, hosts, personal paths, real account IDs
+
+Update:
 
 ```bash
 python3 "${SKILL_ROOT}/scripts/memory.py" update <<'JSON'
 {
   "patterns": [
     {"category": "Frontend", "description": "Prefer acceptance-criteria when hide vs fallback conflicts"},
+    {"category": "CrossModule", "description": "Sibling modules share entity context; switch entity refreshes all visible modules"},
     {"category": "API", "description": "Cover both missing and empty-string for required query params"}
   ],
   "run": {
-    "description": "API+FE cases for conclusion module",
-    "deliverables": ["api-cases", "fe-cases"],
-    "key_patterns": ["Layer separation FE vs content", "Expand/collapse state reset on context switch"]
+    "description": "short generalized label of this run",
+    "deliverables": ["fe-cases", "gap-doc"],
+    "key_patterns": ["display-field abnormal", "cross-module entity bind"]
   }
 }
 JSON
 ```
 
-Rules for memory entries:
+If `memory.py` rejects a pattern (too long / looks like case dump / sensitive), rewrite shorter and generalized, then retry once.
 
-- Generalize; strip product names, internal URLs, account IDs
-- Merge semantically with existing high-count items when possible
-- Memory is **local learning**, not a substitute for current PRD
-
-Optional: if the same pattern appears ≥3 times and is stable, propose a short addition to `references/playbook.md` and apply only if user agrees (or if running in “auto-upgrade playbook” mode).
+Optional: if the same pattern appears ≥3 times and is stable, propose a short addition to `references/playbook.md` and apply only if user agrees (do **not** put cases into playbook).
 
 ## Defect output template
 
@@ -280,10 +303,11 @@ Always end with:
 - `references/case-template.md` — column semantics
 - `references/coverage-matrix.md` — default coverage matrix
 - `references/display-field-abnormal-matrix.md` — **外显字段类型异常 + 展示形态（强制）**
+- `references/memory-and-isolation.md` — **本地记忆 / 不随 skill 分发 / 跨模块**
 - `references/defect-template.md` — bug template
 - `references/privacy-redaction.md` — redaction rules
-- `references/playbook.md` — curated upgraded patterns
-- `examples/` — fictional sanitized samples only
+- `references/playbook.md` — curated upgraded patterns (generalized only)
+- `examples/` — fictional sanitized samples only (**not** real project cases)
 ---
 
 ## Quality bar
@@ -293,3 +317,6 @@ Always end with:
 - No secrets in cases, memory, or examples
 - Frontend-only requests never ship API param matrices or content “正例/负例” generation suites unless asked
 - **If UI shows API fields, abnormal display cases exist** (not only happy path); missing PRD rules → 待确认, not silent skip
+- **Skill package contains zero real project case libraries**; deliverables stay in user workspace
+- **Memory update ran** after successful delivery (local only); empty memory on first use is OK
+- **Cross-module risks** considered when the page has multiple modules
