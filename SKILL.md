@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.3.1"
+  version: "1.3.2"
   compatible-agents:
     - grok
     - codex
@@ -189,8 +189,18 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 - Interactions from PRD (expand, swipe, sticky tab highlight, switch entity)
 - Empty / fail / partial field: separate cases; partial missing must not break other blocks
 - Data-driven tabs: hardcoded labels, visibility from section data
-- Display-field abnormals for UI-visible fields (`display-field-abnormal-matrix.md`)
+- Series/context binding: no cross-entity stale UI after switch; expand state reset on switch unless PRD says remember
+- Multi width / rapid click as needed
 - **Never:** “匿名可浏览” as FE case when data-driven; never own API required-metric checklist in FE expects
+
+- **外显字段类型异常（强制，见 `display-field-abnormal-matrix.md`）** — 凡接口字段会在页面展示，必须按类型做异常（可与正常展示/交互用例并列，不得删减强制矩阵）：
+  - `int`：负数、0、正数
+  - `string`：空、超长、特殊字符（及安全转义）
+  - `[]`：空、1 个、少、多（含约 10 个）、正常多个
+  - `{}`：空对象、少 key、多 key（未知不展示）、满 key
+  - 展示形态：单行超出 `...`；多行截断；固定高度滚动；弹层标题前端写死 vs 正文接口字段
+  - object 少字段：不报错、有几个展示几个、行内居左等布局（展示层；完整数据契约仍归 API）
+  - 核心 object 为空 `{}`：整模块不展示（若该块为核心数据）
 
 #### Pattern examples (generic field names only — not a shipped case library)
 
