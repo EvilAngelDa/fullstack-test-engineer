@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.2.0"
+  version: "1.3.0"
   compatible-agents:
     - grok
     - codex
@@ -51,6 +51,7 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
 8. **Experience only — never ship cases with the skill.** Write case files only into the **user project workspace**. Never copy user xlsx/case libraries into `SKILL_ROOT`, `examples/`, or git of this skill. Skill repo = methodology + fictional samples only.
 9. **Local memory per machine / workspace.** Memory lives under `$HOME/.fullstack-test-engineer/memory/` (not in git). Others’ first run is **empty** — that is normal. After every successful delivery, **must** `memory.py update` with generalized patterns so the next run on that machine learns. See `references/memory-and-isolation.md`.
 10. **Cross-module linkage.** Modules on the same page/product often share entity context, layout order, params, or hide rules. When designing cases, **load memory first** and record/reuse `CrossModule` patterns so later modules stay consistent with earlier ones in the same workspace.
+11. **Scenario taxonomy (mandatory).** **风控 ≠ 网络异常 ≠ 接口内部错误 ≠ 错误数据 ≠ 数据为空.** Even when UI all “hide module”, split cases by response shell and cause. See `references/response-scenario-taxonomy.md`. Never collapse them into one “异常不展示” case or delete platform cases that cover different causes.
 
 ## Boot Sequence (every run)
 
@@ -174,6 +175,7 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 - Auth present/absent if doc unclear → 待确认
 - Documented error codes only as hard expects; undocumented → “记录实际行为”
 - **Response body shapes that FE will render:** empty `{}` / partial object / extra keys; empty `[]` / 1 / many (~10); int 负/0/正; string 空/超长/特殊字符 — at least ensure API can return or mock these without 500 (pair with FE cases)
+- **Risk / empty / fail split:** success+empty body (risk/policy) vs 4xx/5xx vs network vs wrong entity data vs business empty lists — separate cases (`response-scenario-taxonomy.md`)
 
 #### Frontend functional coverage checklist
 
@@ -184,6 +186,7 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 - Expand full text → collapse control; collapse restores
 - Short content: no expand
 - Empty / fail / abnormal: **hide or empty-state per PRD** (do not invent)
+- **Separate hide paths:** risk success-empty, network error, 4xx/5xx, wrong data, business empty — different preconditions/recovery/sibling impact
 - Series/context binding: no cross-entity stale UI after switch
 - Expand state reset on context switch (unless PRD says remember)
 - Multi width: line-clamp rule still holds
@@ -234,6 +237,8 @@ Good patterns (examples):
 - “Single-line overflow uses ellipsis; modal long text uses fixed height + scroll”
 - “CrossModule: sibling modules bind same entity id; entity switch must refresh all without cross-talk”
 - “CrossModule: shared query params (version/deviceType) — reuse required-param matrix across sibling APIs”
+- “Risk control success+empty data is not network error, not 4xx/5xx, not wrong entity data, not the same as every empty-list shape”
+- “UI may hide module for many causes; still keep separate cases for risk vs fail vs empty vs mismatch”
 
 **Forbidden in memory:**
 
@@ -304,6 +309,7 @@ Always end with:
 - `references/coverage-matrix.md` — default coverage matrix
 - `references/display-field-abnormal-matrix.md` — **外显字段类型异常 + 展示形态（强制）**
 - `references/memory-and-isolation.md` — **本地记忆 / 不随 skill 分发 / 跨模块**
+- `references/response-scenario-taxonomy.md` — **风控≠网络≠错误≠空数据**
 - `references/defect-template.md` — bug template
 - `references/privacy-redaction.md` — redaction rules
 - `references/playbook.md` — curated upgraded patterns (generalized only)

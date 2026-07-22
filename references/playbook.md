@@ -14,6 +14,11 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
 2. Documented error messages are hard expects; undocumented type-coercion failures are “记录实际行为”.
 3. Mock-stage APIs: prioritize **contract** (codes, types, echo ids) over business copy correctness.
 4. After real DB wiring, re-run injection + not-found entity cases.
+5. **Scenario taxonomy (mandatory when risk/empty/fail all appear):**  
+   **风控 ≠ 网络异常 ≠ 接口内部错误(4xx/5xx) ≠ 错误数据(串号等) ≠ 数据为空(业务空/`[]`/`data:{}`)。**  
+   Full table: `references/response-scenario-taxonomy.md`. Split cases even if UI all hides the module.
+6. Risk/policy offline often = **success code + empty body** (e.g. `data:{}`) by entity id — not 500, not param 400.
+7. Empty success body may be **minimal `{}`** or **structured empty** (keys present, empty arrays) — cover both; neither is transport failure.
 
 ## Frontend functional cases
 
@@ -22,6 +27,8 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
 3. Empty/fail: assert **whole module absence** (title+body+control), not only empty body.
 4. “一段文本无跳转” → click body must not route; only expand/collapse controls act.
 5. Do not mix **content wording quality** cases into FE-only requests.
+6. **Do not merge hide scenarios:** risk empty-success, network error, 4xx/5xx, wrong data, business empty lists need **separate** FE cases (preconditions differ: toast, recovery, sibling modules).
+7. Show-if-has-data: both `data:{}` and structured empty lists count as no-data; still separate mocks/cases from server error.
 
 ## Display fields from API (前端外显) — mandatory
 
@@ -44,6 +51,7 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 3. Sibling APIs often share `version` / `deviceType` (or equivalent) — reuse required-param matrices.
 4. One module API fail may hide only that module; do not assume whole page fails unless PRD says so.
 5. Memory category `CrossModule` is for these links — not for dumping multi-module case sheets.
+6. Sibling isolation: **risk empty-data on module A** and **500/network on module A** are two FE cases — both may leave module B visible.
 
 ## Process
 
@@ -62,3 +70,4 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 - 2026-07-21: Initial playbook from FE expand/collapse + API conclusion-module style work (sanitized).
 - 2026-07-22: Display-field abnormal matrix (int/string/array/object + single-line/scroll/modal patterns).
 - 2026-07-22: Memory isolation + CrossModule patterns; cases stay in user workspace only.
+- 2026-07-22: Response scenario taxonomy — risk control ≠ network ≠ 4xx/5xx ≠ wrong data ≠ empty business data.

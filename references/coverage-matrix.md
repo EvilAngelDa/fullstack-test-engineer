@@ -16,6 +16,7 @@ Use as a checklist. Drop rows that do not apply. Do not invent expects for unche
 | Concurrency | Parallel reads no cross-talk |
 | Auth | With/without credential if product requires |
 | Security light | Injection chars, XSS payloads in params (no exploit kit) |
+| Scenario taxonomy | Risk/policy empty-success vs network vs 4xx/5xx vs wrong data vs business empty — **split** (see response-scenario-taxonomy.md) |
 
 ## Layer: Frontend functional
 
