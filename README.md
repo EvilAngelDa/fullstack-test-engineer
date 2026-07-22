@@ -20,6 +20,7 @@ Most agents dump generic test ideas. This skill enforces a **senior QA workflow*
 | Layer split | Auto-separate **Frontend / API / Content / NF** |
 | Template-native cases | Columns compatible with common case-import Excel |
 | **Display-field abnormal** | UI-visible API fields: int/string/[]/{} abnormal + ellipsis/scroll/modal |
+| **Scenario taxonomy** | **风控 ≠ 网络 ≠ 4xx/5xx ≠ 错误数据 ≠ 数据为空** — split cases even if UI all hides |
 | **Local memory only** | `$HOME/.fullstack-test-engineer/memory/` — not in git; **empty on first use**; grows after each run |
 | **No shipped cases** | Real project xlsx stay in your workspace; skill ships methodology + fictional examples |
 | **Cross-module** | Remembers module links (layout/entity/params) via `CrossModule` patterns |
