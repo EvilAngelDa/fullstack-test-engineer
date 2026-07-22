@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.0.0"
+  version: "1.1.0"
   compatible-agents:
     - grok
     - codex
@@ -47,6 +47,7 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
 4. When user says **“只要前端功能”** or **“不要非前端非功能”** → output **only** frontend functional cases.
 5. Deliverables must be readable by **product, dev, and QA**.
 6. **Privacy-safe by default** (see Privacy). Never write secrets, internal hosts, personal paths, or real PII into cases or memory.
+7. **Display-field abnormal coverage (mandatory).** For every API response field that is **shown on the UI (前端外显)**, generate type-based abnormal cases (int / string / array / object) **and** display-shape cases (single-line ellipsis / multi-line / scroll / modal). See `references/display-field-abnormal-matrix.md`. Do not only write happy-path mapping.
 
 ## Boot Sequence (every run)
 
@@ -93,9 +94,17 @@ List what the user provided. For each file/path:
 
 **Classify every requirement line** as `FE` / `API` / `CONTENT` / `NF` / `UNCLEAR`.
 
+**Build 外显字段映射表** (when API doc + UI exist):
+
+| 字段 | 类型 | 页面位置 | 展示形态 | 空值策略 | 备注 |
+|------|------|----------|----------|----------|------|
+| e.g. data.xxx | int/string/[]/{} | 模块标题下第 N 行 | 单行/多行/滚动/弹层 | 隐藏模块/隐藏行/兜底/待确认 | |
+
+Any field in this table **must** get abnormal cases per `references/display-field-abnormal-matrix.md`.
+
 ### Step 3 — Requirement questions first
 
-Before large case dumps, output **需求疑问清单** when gaps affect expected results (auth, empty data UX, evidence-insufficient hide vs message, enum bounds, trim rules, etc.).
+Before large case dumps, output **需求疑问清单** when gaps affect expected results (auth, empty data UX, evidence-insufficient hide vs message, enum bounds, trim rules, **空 string 兜底 vs 空白**, **object 少 key 布局**, etc.).
 
 If the user asked only for cases, still include a short gap list in 备注 / 交付说明.
 
@@ -146,6 +155,7 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 - Light concurrency correctness (no cross-talk)
 - Auth present/absent if doc unclear → 待确认
 - Documented error codes only as hard expects; undocumented → “记录实际行为”
+- **Response body shapes that FE will render:** empty `{}` / partial object / extra keys; empty `[]` / 1 / many (~10); int 负/0/正; string 空/超长/特殊字符 — at least ensure API can return or mock these without 500 (pair with FE cases)
 
 #### Frontend functional coverage checklist
 
@@ -160,6 +170,22 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 - Expand state reset on context switch (unless PRD says remember)
 - Multi width: line-clamp rule still holds
 - Rapid click stability
+- **外显字段类型异常（强制，见 display-field-abnormal-matrix.md）**
+  - `int`：负数、0、正数
+  - `string`：空、超长、特殊字符（及安全转义）
+  - `[]`：空、1 个、少、多（含约 10 个）、正常多个
+  - `{}`：空对象、少 key、多 key（未知不展示）、满 key
+  - 展示形态：单行超出 `...`；多行截断；固定高度滚动；弹层标题前端写死 vs 正文接口字段
+  - object 少字段：不报错、有几个展示几个、行内居左等布局
+  - 核心 object 为空 `{}`：整模块不展示（若该块为核心数据）
+
+#### Pattern examples (generalized from co-creation board style modules)
+
+Use as **templates**, rename fields to the current API:
+
+1. Object status block with fixed N keys → extra keys ignored; missing keys show remaining left-aligned; `{}` hides module  
+2. Single-line time string → empty hides “label+time” row; special chars show; long text single-line ellipsis  
+3. Modal body string → long text fixed-height scroll; empty body = fallback copy vs blank → 产品确认; special chars OK; title may be FE-fixed  
 
 #### Always attach (light)
 
@@ -185,6 +211,8 @@ Examples of good patterns:
 - “FE: when PRD conflicts hide-module vs show-fallback-text, prefer explicit 验收标准 and flag conflict”
 - “API: empty string and missing query param often share same 400 message — cover both”
 - “Always separate CONTENT quality rules from FE display rules unless user asks both”
+- “Display fields: int cover neg/zero/pos; string empty/long/special; array empty/1/many; object empty/partial/extra keys”
+- “Single-line overflow uses ellipsis; modal long text uses fixed height + scroll”
 
 Update memory:
 
@@ -251,6 +279,7 @@ Always end with:
 
 - `references/case-template.md` — column semantics
 - `references/coverage-matrix.md` — default coverage matrix
+- `references/display-field-abnormal-matrix.md` — **外显字段类型异常 + 展示形态（强制）**
 - `references/defect-template.md` — bug template
 - `references/privacy-redaction.md` — redaction rules
 - `references/playbook.md` — curated upgraded patterns
@@ -263,3 +292,4 @@ Always end with:
 - Remarks call out doc gaps instead of hardcoding guessed expects
 - No secrets in cases, memory, or examples
 - Frontend-only requests never ship API param matrices or content “正例/负例” generation suites unless asked
+- **If UI shows API fields, abnormal display cases exist** (not only happy path); missing PRD rules → 待确认, not silent skip

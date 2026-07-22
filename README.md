@@ -19,6 +19,7 @@ Most agents dump generic test ideas. This skill enforces a **senior QA workflow*
 | No hallucination of fixtures | Missing business data → **待补充信息清单**, not invented expects |
 | Layer split | Auto-separate **Frontend / API / Content / NF** |
 | Template-native cases | Columns compatible with common case-import Excel |
+| **Display-field abnormal** | UI-visible API fields: int/string/[]/{} abnormal + ellipsis/scroll/modal |
 | Experience upgrade | Local memory of generalized patterns across runs |
 | Publish-safe | Privacy scanner before GitHub |
 
@@ -32,7 +33,7 @@ fullstack-test-engineer/
 ├── AGENTS.md                # Multi-agent load guide
 ├── README.md                # This file
 ├── LICENSE
-├── references/              # Templates, matrix, playbook, privacy
+├── references/              # Templates, matrix, display-field abnormal, playbook, privacy
 ├── scripts/
 │   ├── memory.py            # Experience memory (snapshot/update)
 │   ├── scrub_privacy.py     # Pre-publish privacy scan

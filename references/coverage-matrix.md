@@ -33,6 +33,21 @@ Use as a checklist. Drop rows that do not apply. Do not invent expects for unche
 | Layout | Expand grows card; no overlap; scroll ok |
 | Width | Line clamp still correct on narrow/wide |
 
+## Layer: Display-field abnormal (API fields shown on UI) — **required when applicable**
+
+Detail: `display-field-abnormal-matrix.md`.
+
+| Type | Must-cover abnormal set |
+|------|-------------------------|
+| int / number | negative, 0, positive |
+| string | empty, very long, special chars; safe render of `<>&` |
+| array `[]` | empty, 1, few, many (~10), normal multi |
+| object `{}` | empty, fewer keys, extra unknown keys (not shown), full keys |
+| single-line UI | overflow → `...` |
+| multi-line UI | clamp / expand |
+| scroll / modal | fixed height + vertical scroll for long body |
+| empty strategies | hide module vs hide row vs FE fallback copy (ask product if unclear) |
+
 ## Layer: Content quality (only if requested)
 
 | Area | Examples |
