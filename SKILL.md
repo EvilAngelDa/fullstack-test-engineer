@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.3.0"
+  version: "1.3.1"
   compatible-agents:
     - grok
     - codex
@@ -52,6 +52,8 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
 9. **Local memory per machine / workspace.** Memory lives under `$HOME/.fullstack-test-engineer/memory/` (not in git). Others’ first run is **empty** — that is normal. After every successful delivery, **must** `memory.py update` with generalized patterns so the next run on that machine learns. See `references/memory-and-isolation.md`.
 10. **Cross-module linkage.** Modules on the same page/product often share entity context, layout order, params, or hide rules. When designing cases, **load memory first** and record/reuse `CrossModule` patterns so later modules stay consistent with earlier ones in the same workspace.
 11. **Scenario taxonomy (mandatory).** **风控 ≠ 网络异常 ≠ 接口内部错误 ≠ 错误数据 ≠ 数据为空.** Even when UI all “hide module”, split cases by response shell and cause. See `references/response-scenario-taxonomy.md`. Never collapse them into one “异常不展示” case or delete platform cases that cover different causes.
+12. **Strict API / FE case split.** API cases = params/codes/**PRD-required data fields** only — never UI style (sticky, ellipsis, card layout). FE cases = **design + interaction + how normal/empty/abnormal API data is shown** — never login/anonymous if visibility is data-only; never own “API must return metric X” checklists (that is API). See playbook **Layer split**.
+13. **FE is data-driven:** show/hide and interaction depend on **API has data / data ok / data abnormal** — not on whether the user is logged in.
 
 ## Boot Sequence (every run)
 
@@ -166,39 +168,29 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 #### API case coverage checklist
 
 - Happy path + field contract types
+- **PRD-required metric/field name sets** on full-data happy path (module description owns the list)
 - Required missing / empty / whitespace (if unknown trim → note 待确认)
 - Type errors, enum out-of-range (doc vs actual)
-- Boundary length, special chars
+- Boundary length, special chars (payload only, not UI wrap)
 - Wrong HTTP method / path
-- Idempotent repeat GET
-- Light concurrency correctness (no cross-talk)
-- Auth present/absent if doc unclear → 待确认
+- Idempotent repeat GET; no cross-talk of entity ids
+- Auth / anonymous (if product defined) — **API only**
 - Documented error codes only as hard expects; undocumented → “记录实际行为”
-- **Response body shapes that FE will render:** empty `{}` / partial object / extra keys; empty `[]` / 1 / many (~10); int 负/0/正; string 空/超长/特殊字符 — at least ensure API can return or mock these without 500 (pair with FE cases)
-- **Risk / empty / fail split:** success+empty body (risk/policy) vs 4xx/5xx vs network vs wrong entity data vs business empty lists — separate cases (`response-scenario-taxonomy.md`)
+- Empty / structured empty / invalid child-id empty-success per product
+- **Risk / empty / fail split** (`response-scenario-taxonomy.md`)
+- **Never:** sticky tabs, ellipsis, card styles, “横向滑动”, “吸顶” in API expects
 
 #### Frontend functional coverage checklist
 
-- Placement relative to other modules
-- Visible structure vs design (title, icon, card) without pixel-perfect nit unless asked
-- Text display rules (paragraph, no navigation)
-- Truncation (e.g. max 2 lines) + expand entry
-- Expand full text → collapse control; collapse restores
-- Short content: no expand
-- Empty / fail / abnormal: **hide or empty-state per PRD** (do not invent)
-- **Separate hide paths:** risk success-empty, network error, 4xx/5xx, wrong data, business empty — different preconditions/recovery/sibling impact
-- Series/context binding: no cross-entity stale UI after switch
-- Expand state reset on context switch (unless PRD says remember)
-- Multi width: line-clamp rule still holds
-- Rapid click stability
-- **外显字段类型异常（强制，见 display-field-abnormal-matrix.md）**
-  - `int`：负数、0、正数
-  - `string`：空、超长、特殊字符（及安全转义）
-  - `[]`：空、1 个、少、多（含约 10 个）、正常多个
-  - `{}`：空对象、少 key、多 key（未知不展示）、满 key
-  - 展示形态：单行超出 `...`；多行截断；固定高度滚动；弹层标题前端写死 vs 正文接口字段
-  - object 少字段：不报错、有几个展示几个、行内居左等布局
-  - 核心 object 为空 `{}`：整模块不展示（若该块为核心数据）
+- **Organize by data state:** normal display | normal interaction | empty display/interaction | abnormal/fail display/interaction
+- **No login dimension** if product says show/hide follows API data only
+- Placement / structure vs **UI design** (not pixel-perfect unless asked)
+- Render API values as-is (count and content); do not invent missing metrics in FE
+- Interactions from PRD (expand, swipe, sticky tab highlight, switch entity)
+- Empty / fail / partial field: separate cases; partial missing must not break other blocks
+- Data-driven tabs: hardcoded labels, visibility from section data
+- Display-field abnormals for UI-visible fields (`display-field-abnormal-matrix.md`)
+- **Never:** “匿名可浏览” as FE case when data-driven; never own API required-metric checklist in FE expects
 
 #### Pattern examples (generic field names only — not a shipped case library)
 
@@ -239,6 +231,8 @@ Good patterns (examples):
 - “CrossModule: shared query params (version/deviceType) — reuse required-param matrix across sibling APIs”
 - “Risk control success+empty data is not network error, not 4xx/5xx, not wrong entity data, not the same as every empty-list shape”
 - “UI may hide module for many causes; still keep separate cases for risk vs fail vs empty vs mismatch”
+- “API cases never include UI style expects; FE cases never include login if show/hide is API-data-only”
+- “PRD metric sets are API contract; FE renders returned arrays as-is with adaptive layout”
 
 **Forbidden in memory:**
 
@@ -310,6 +304,7 @@ Always end with:
 - `references/display-field-abnormal-matrix.md` — **外显字段类型异常 + 展示形态（强制）**
 - `references/memory-and-isolation.md` — **本地记忆 / 不随 skill 分发 / 跨模块**
 - `references/response-scenario-taxonomy.md` — **风控≠网络≠错误≠空数据**
+- `references/api-fe-layer-split.md` — **接口/前端分层与前端数据驱动**
 - `references/defect-template.md` — bug template
 - `references/privacy-redaction.md` — redaction rules
 - `references/playbook.md` — curated upgraded patterns (generalized only)

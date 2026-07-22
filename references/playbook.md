@@ -8,6 +8,17 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
 2. When **约束条件** and **验收标准** conflict, **prefer 验收标准** for expected results and record the conflict in 需求疑问清单.
 3. “证据不足展示文案” vs “不展示模块” is a common product ambiguity — never silently pick without labeling 待确认 if both appear.
 
+## Layer split (API vs FE) — do not mix
+
+| Layer | Source of truth | Write | Do **not** write |
+|-------|-----------------|-------|------------------|
+| **API** | 模块/需求描述的**数据要求** + 接口文档 | 入参、错误码、字段类型、**需求规定的指标/字段集合**、列表规则、空数据形态、鉴权 | 吸顶、横滑、展开行数、卡片样式、布局适配 |
+| **FE** | **UI 设计稿** + 需求**交互/显隐** | 有数据怎么展示/交互；空/异常数据怎么展示/交互；样式与设计一致 | 登录与否；「接口必须返回哪几项」的契约清单（完整集合放 API） |
+
+1. **接口按需求返回数据**；前端 **返回什么展示什么、几条展几条**（样式适配）。二者不矛盾：契约在 API，渲染在 FE。  
+2. 完整有数据场景缺需求指标 → **API/数据缺陷**；不完整 mock 少项 → FE **容错有几条展几条**，不要求前端补齐。  
+3. 禁止把「单行省略 / 吸顶 / 卡片样式」写进接口预期结果。
+
 ## API cases
 
 1. Cover **missing param** and **empty string** separately for each required query field.
@@ -19,16 +30,20 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
    Full table: `references/response-scenario-taxonomy.md`. Split cases even if UI all hides the module.
 6. Risk/policy offline often = **success code + empty body** (e.g. `data:{}`) by entity id — not 500, not param 400.
 7. Empty success body may be **minimal `{}`** or **structured empty** (keys present, empty arrays) — cover both; neither is transport failure.
+8. Auth/anonymous access belongs in **API** cases only.
 
 ## Frontend functional cases
 
-1. Truncation rules depend on **font/line-height/width** — assert line count behavior, not character counts, unless PRD gives chars.
-2. Expand/collapse: verify **label swap**, **full text equality to source**, **layout reflow**, **state reset on entity switch**.
-3. Empty/fail: assert **whole module absence** (title+body+control), not only empty body.
-4. “一段文本无跳转” → click body must not route; only expand/collapse controls act.
-5. Do not mix **content wording quality** cases into FE-only requests.
-6. **Do not merge hide scenarios:** risk empty-success, network error, 4xx/5xx, wrong data, business empty lists need **separate** FE cases (preconditions differ: toast, recovery, sibling modules).
-7. Show-if-has-data: both `data:{}` and structured empty lists count as no-data; still separate mocks/cases from server error.
+1. **Data-driven only:** FE cares about **是否有数据、数据是否正常** — not login state. 有数据→展示与交互；空数据→不展示/对应交互；异常数据→兼容展示与交互。
+2. Structure FE suites as: **正常数据展示** | **正常数据交互** | **空数据展示/交互** | **异常/失败展示/交互**.
+3. Styles follow **UI mockups**; interactions follow **PRD**; field values follow **API response**.
+4. Truncation/expand depend on font/line-height/width — assert behavior, not magic char counts unless PRD says so.
+5. Expand/collapse: label swap, full text = source, reflow, reset on entity switch.
+6. Empty/fail: whole module absence when no displayable data; partial field missing must not break other blocks.
+7. Hardcoded tab **labels** may be FE-fixed; **visibility** is data-driven (show tab only if that section has data).
+8. **Do not merge hide scenarios:** risk empty-success, network, 4xx/5xx, wrong data, business empty — separate FE cases.
+9. Do not mix content-generation quality suites into pure FE unless user asks; light content checks OK as P2.
+10. Never put “anonymous/login can browse” as FE case if show/hide is purely API-data-driven — put auth on API side.
 
 ## Display fields from API (前端外显) — mandatory
 
@@ -71,3 +86,4 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 - 2026-07-22: Display-field abnormal matrix (int/string/array/object + single-line/scroll/modal patterns).
 - 2026-07-22: Memory isolation + CrossModule patterns; cases stay in user workspace only.
 - 2026-07-22: Response scenario taxonomy — risk control ≠ network ≠ 4xx/5xx ≠ wrong data ≠ empty business data.
+- 2026-07-22: Strict API vs FE layer split; FE data-driven only (no login); API owns PRD metric sets, FE owns design+interaction.
