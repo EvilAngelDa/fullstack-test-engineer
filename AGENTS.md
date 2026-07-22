@@ -31,6 +31,7 @@ Activate when the user asks for any of:
 7. **Write** deliverables only to the **user project workspace** (never as a case library inside `SKILL_ROOT`).
 8. **Mandatory after success:** `memory.py update` with **generalized** patterns only (include `CrossModule` when relevant).  
    - No full cases, no case IDs, no xlsx content in memory.
+   - **Append-only:** do not delete prior non-conflicting memory/playbook rules; on conflict, ask the user.
 9. If user will publish artifacts: `scrub_privacy.py --path <artifacts> --report`.
 
 See `references/memory-and-isolation.md`.

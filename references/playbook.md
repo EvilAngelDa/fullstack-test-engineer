@@ -77,6 +77,7 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 5. When API+UI both present, deliver 外显字段映射表 in 交付说明.
 6. Never commit local memory or real project cases into the skill repository.
 7. First `snapshot` empty on a new machine is normal.
+8. **Append-only experience (strict):** new lessons that do **not** conflict with old playbook/memory → **add only, never delete old**. If they **conflict** → **ask the user**; do not auto-drop prior rules. Checklist rewrites must keep prior mandatory detail bullets.
 
 ## Suggested future upgrades (agents may add below)
 
@@ -87,3 +88,4 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 - 2026-07-22: Memory isolation + CrossModule patterns; cases stay in user workspace only.
 - 2026-07-22: Response scenario taxonomy — risk control ≠ network ≠ 4xx/5xx ≠ wrong data ≠ empty business data.
 - 2026-07-22: Strict API vs FE layer split; FE data-driven only (no login); API owns PRD metric sets, FE owns design+interaction.
+- 2026-07-22: Append-only memory/playbook — never delete non-conflicting prior experience; conflicts escalate to user.

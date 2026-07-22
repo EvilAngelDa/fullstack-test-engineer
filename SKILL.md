@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.3.2"
+  version: "1.3.3"
   compatible-agents:
     - grok
     - codex
@@ -54,6 +54,10 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
 11. **Scenario taxonomy (mandatory).** **风控 ≠ 网络异常 ≠ 接口内部错误 ≠ 错误数据 ≠ 数据为空.** Even when UI all “hide module”, split cases by response shell and cause. See `references/response-scenario-taxonomy.md`. Never collapse them into one “异常不展示” case or delete platform cases that cover different causes.
 12. **Strict API / FE case split.** API cases = params/codes/**PRD-required data fields** only — never UI style (sticky, ellipsis, card layout). FE cases = **design + interaction + how normal/empty/abnormal API data is shown** — never login/anonymous if visibility is data-only; never own “API must return metric X” checklists (that is API). See playbook **Layer split**.
 13. **FE is data-driven:** show/hide and interaction depend on **API has data / data ok / data abnormal** — not on whether the user is logged in.
+14. **Memory & playbook are append-only unless the user decides.** When sedimenting new experience:
+    - If **no conflict** with existing playbook / local memory patterns → **only add or merge counts**; **never delete, overwrite, or drop** prior patterns/rules.
+    - If **conflict** (new lesson contradicts an old one) → **stop auto-resolving**: list both sides clearly and **ask the user** how to adjust; do not silently remove the old entry.
+    - Condensing checklist wording is OK only if the **full prior rules remain present** (e.g. keep detailed bullets + new bullets); never replace a mandatory detailed block with a one-line reference that drops the content.
 
 ## Boot Sequence (every run)
 
@@ -228,6 +232,15 @@ Fix any HIGH findings before GitHub. See `references/privacy-redaction.md`.
 ### Step 6 — Experience upgrade (auto-learn, **mandatory after success**)
 
 After delivering cases/analysis (or gap reviews), **always** update **local** memory. This is how the **current user** accumulates experience; other machines start empty until they run updates themselves.
+
+#### Append-only memory policy (**strict**)
+
+| Situation | Action |
+|-----------|--------|
+| New pattern **compatible** with existing memory/playbook | `memory.py update` **add** (or increment merge). **Do not delete** old patterns. |
+| New pattern **semantically same** as existing | Merge onto existing wording (count++), keep the established description if possible. |
+| New pattern **conflicts** with existing | **Do not delete or overwrite.** Output a **冲突清单** for the user: old text, new text, recommendation; wait for user decision. |
+| Editing `references/playbook.md` or `SKILL.md` checklists | **Append** new sections/bullets; if rewriting, **preserve all prior non-conflicting rules** in full (no silent drop of mandatory lists). |
 
 **Generalize** 2–8 lessons. Prefer including **≥1 CrossModule** pattern when multiple modules appear on the page or APIs share params.
 
