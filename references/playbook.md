@@ -63,7 +63,7 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 11. FE field cases must state **【接口返回预期】** + **【前端页面渲染预期】** and cite UI稿 or PRD.
 12. Split **API return cases** and **client display cases** into separate lists/files; do not merge multi-scenes into one case.
 13. Nested structures: drill every leaf; empty `""` vs `null` as separate cases.
-14. **Module PRD overrides** generic defaults (e.g. hide stats when 0) — annotate 备注; do not delete global matrix rules.
+14. **Module PRD overrides** (user-locked 2026-07-23): 模块 PRD 写明了 → 听 PRD，备注「PRD 覆盖默认矩阵」；PRD 没写 → Prompt/矩阵默认。Do not delete global matrix rules.
 
 ## Cross-module (same page / product family)
 
@@ -96,3 +96,4 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 - 2026-07-22: Strict API vs FE layer split; FE data-driven only (no login); API owns PRD metric sets, FE owns design+interaction.
 - 2026-07-22: Append-only memory/playbook — never delete non-conflicting prior experience; conflicts escalate to user.
 - 2026-07-23: Field-refined case rules overlay — per-field cases, dual expects, no batch-by-type; PRD overrides defaults.
+- 2026-07-23: User locked priority: module PRD explicit > Prompt/matrix defaults; annotate PRD覆盖默认矩阵.

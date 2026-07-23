@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.3.4"
+  version: "1.3.5"
   compatible-agents:
     - grok
     - codex
@@ -63,7 +63,7 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
     - **Split suites:** backend return cases vs client display cases listed separately.
     - **Client field cases** must include both **【接口返回预期】** and **【前端页面渲染预期】**; note UI稿 or PRD as display basis.
     - Nested array/object: drill to leaf string/int with full type matrix.
-    - **Module PRD explicit rules override** generic defaults in the matrix (e.g. hide on 0) — note override in 备注; do not delete the global matrix.
+    - **Priority (user-locked):** 模块 PRD 写明了 → 听 PRD，备注「PRD 覆盖默认矩阵」；PRD 没写 → 用 Prompt/矩阵默认。Never delete global defaults from the skill; overrides are per-module case notes only.
 
 ## Boot Sequence (every run)
 
