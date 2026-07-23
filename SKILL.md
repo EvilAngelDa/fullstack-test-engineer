@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.3.3"
+  version: "1.3.4"
   compatible-agents:
     - grok
     - codex
@@ -58,6 +58,12 @@ User may provide: PRD, prototype/screenshot, API docs, flows, Excel template, en
     - If **no conflict** with existing playbook / local memory patterns → **only add or merge counts**; **never delete, overwrite, or drop** prior patterns/rules.
     - If **conflict** (new lesson contradicts an old one) → **stop auto-resolving**: list both sides clearly and **ask the user** how to adjust; do not silently remove the old entry.
     - Condensing checklist wording is OK only if the **full prior rules remain present** (e.g. keep detailed bullets + new bullets); never replace a mandatory detailed block with a one-line reference that drops the content.
+15. **Field-refined cases (mandatory for UI-bound response fields).** In addition to `display-field-abnormal-matrix.md`, apply `references/field-refined-case-rules.md`:
+    - **Per field, per scenario** (one case = one field + one scene); no batch “all strings long-text” cases.
+    - **Split suites:** backend return cases vs client display cases listed separately.
+    - **Client field cases** must include both **【接口返回预期】** and **【前端页面渲染预期】**; note UI稿 or PRD as display basis.
+    - Nested array/object: drill to leaf string/int with full type matrix.
+    - **Module PRD explicit rules override** generic defaults in the matrix (e.g. hide on 0) — note override in 备注; do not delete the global matrix.
 
 ## Boot Sequence (every run)
 
@@ -205,6 +211,14 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
   - 展示形态：单行超出 `...`；多行截断；固定高度滚动；弹层标题前端写死 vs 正文接口字段
   - object 少字段：不报错、有几个展示几个、行内居左等布局（展示层；完整数据契约仍归 API）
   - 核心 object 为空 `{}`：整模块不展示（若该块为核心数据）
+- **字段精细化强制（叠加，见 `field-refined-case-rules.md`）** — **不得替代上一节**，在上一节之上追加：
+  - **禁止按类型笼统批量**；**逐字段**拆独立用例；**一字段一场景一条**
+  - 前端外露 string 每字段至少：正常 / 超长 / 特殊字符 / 空（`""` 与 `null` 分开）
+  - 前端外露 int 每字段至少：0 / 正数 / 负数(或非法负) / 超大边界（PRD 写 0 不展示时备注 PRD 覆盖）
+  - 前端外露数组：≥2 多元素（写明横滑或竖滑+顺序一致）/ 仅 1 条 / 空数组（PRD 整模块隐藏时备注覆盖）
+  - 前端外露对象：多 key / 单 key / 空 `{}`；内层 key 继续穿透
+  - 前端字段用例预期须含 **【接口返回预期】** + **【前端页面渲染预期】**；并备注 UI 稿或 PRD 展示依据
+  - 嵌套结构逐层穿透到叶子 string/int；禁止「所有字符串统一校验超长」类概括用例
 
 #### Pattern examples (generic field names only — not a shipped case library)
 
@@ -325,6 +339,7 @@ Always end with:
 - `references/case-template.md` — column semantics
 - `references/coverage-matrix.md` — default coverage matrix
 - `references/display-field-abnormal-matrix.md` — **外显字段类型异常 + 展示形态（强制）**
+- `references/field-refined-case-rules.md` — **逐字段精细化拆条 + 双段预期（强制叠加）**
 - `references/memory-and-isolation.md` — **本地记忆 / 不随 skill 分发 / 跨模块**
 - `references/response-scenario-taxonomy.md` — **风控≠网络≠错误≠空数据**
 - `references/api-fe-layer-split.md` — **接口/前端分层与前端数据驱动**

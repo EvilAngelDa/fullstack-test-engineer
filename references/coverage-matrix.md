@@ -36,18 +36,20 @@ Use as a checklist. Drop rows that do not apply. Do not invent expects for unche
 
 ## Layer: Display-field abnormal (API fields shown on UI) — **required when applicable**
 
-Detail: `display-field-abnormal-matrix.md`.
+Detail: `display-field-abnormal-matrix.md`.  
+**Refined per-field overlay:** `field-refined-case-rules.md` (one field + one scene per case; dual expects on FE).
 
 | Type | Must-cover abnormal set |
 |------|-------------------------|
 | int / number | negative, 0, positive |
-| string | empty, very long, special chars; safe render of `<>&` |
-| array `[]` | empty, 1, few, many (~10), normal multi |
-| object `{}` | empty, fewer keys, extra unknown keys (not shown), full keys |
-| single-line UI | overflow → `...` |
-| multi-line UI | clamp / expand |
+| string | empty (`""` and `null` separate), very long, special chars; safe render of `<>&` |
+| array `[]` | empty, 1, few, many (~10), normal multi; order matches API; nest drill-down |
+| object `{}` | empty, fewer keys, extra unknown keys (not shown), full keys; nest drill-down |
+| single-line UI | overflow → `...` (cite UI稿) |
+| multi-line UI | clamp / expand (cite UI稿) |
 | scroll / modal | fixed height + vertical scroll for long body |
-| empty strategies | hide module vs hide row vs FE fallback copy (ask product if unclear) |
+| empty strategies | hide module vs hide row vs FE fallback copy (PRD overrides defaults) |
+| case granularity | **no batch-by-type**; name field path + scene + UI/PRD basis |
 
 ## Layer: Content quality (only if requested)
 

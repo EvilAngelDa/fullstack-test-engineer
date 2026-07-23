@@ -47,7 +47,8 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
 
 ## Display fields from API (前端外显) — mandatory
 
-Full matrix: `references/display-field-abnormal-matrix.md`.
+Full matrix: `references/display-field-abnormal-matrix.md`.  
+**Field-refined overlay (also mandatory):** `references/field-refined-case-rules.md`.
 
 1. Map every UI-visible response field → type + surface + empty strategy before writing cases.
 2. **int**: negative, zero, positive (minimum set for each displayed number).
@@ -58,6 +59,11 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 7. Partial object metrics: no crash; show only returned keys; typically one row left-aligned.
 8. Empty core object often means **hide whole module**; empty leaf string often means **hide that row only**.
 9. Empty modal body when title is FE-fixed: fallback copy vs blank → always 产品确认.
+10. **Per-field independent cases** (no batch-by-type); one field + one scene per case.
+11. FE field cases must state **【接口返回预期】** + **【前端页面渲染预期】** and cite UI稿 or PRD.
+12. Split **API return cases** and **client display cases** into separate lists/files; do not merge multi-scenes into one case.
+13. Nested structures: drill every leaf; empty `""` vs `null` as separate cases.
+14. **Module PRD overrides** generic defaults (e.g. hide stats when 0) — annotate 备注; do not delete global matrix rules.
 
 ## Cross-module (same page / product family)
 
@@ -89,3 +95,4 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 - 2026-07-22: Response scenario taxonomy — risk control ≠ network ≠ 4xx/5xx ≠ wrong data ≠ empty business data.
 - 2026-07-22: Strict API vs FE layer split; FE data-driven only (no login); API owns PRD metric sets, FE owns design+interaction.
 - 2026-07-22: Append-only memory/playbook — never delete non-conflicting prior experience; conflicts escalate to user.
+- 2026-07-23: Field-refined case rules overlay — per-field cases, dual expects, no batch-by-type; PRD overrides defaults.
