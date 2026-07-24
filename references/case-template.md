@@ -31,3 +31,8 @@ When exporting xlsx compatible with multi-row STEP templates:
 
 - Merge all columns **except** 步骤描述 / 预期结果 across step rows
 - One logical case id per merged block (name is unique)
+- **Mandatory merge:** 用例名称 / 所属模块 / 标签 / 前置条件 / 编辑模式 / 备注 / 用例状态 / 责任人 / 用例等级  
+  Continuation rows leave those cells empty **only because they are merged into the first step row** — not because they are separate blank cases
+- **Without merge**, Excel/reviewers see “empty name + only steps” and treat it as dirty data; import tools may also split one case into many
+- Prefer `scripts/write_cases_xlsx.py` (already merges). Ad-hoc openpyxl writers **must** call `merge_cells` for multi-step cases
+- Single-step cases: one row, no merge needed

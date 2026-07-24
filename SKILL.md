@@ -9,7 +9,7 @@ description: >
   /test-cases / /qa.
 metadata:
   short-description: "Full-stack QA: cases, analysis, privacy-safe learning"
-  version: "1.3.5"
+  version: "1.3.6"
   compatible-agents:
     - grok
     - codex
@@ -161,6 +161,7 @@ Conventions:
 - **用例状态**: default `Prepare` unless template says otherwise
 - **标签**: semicolon/comma separated, e.g. `前端;功能;展开;P0`
 - **所属模块**: hierarchical path, e.g. `/产品/模块/前端/组件名`
+- **STEP xlsx:** multi-step cases **must merge** meta columns (name/module/tags/pre/mode/remark/status/owner/level); only 步骤描述/预期结果 stay per row. Prefer `write_cases_xlsx.py` — ad-hoc writers without merge look like blank dirty rows
 
 Prefer writing:
 
@@ -193,7 +194,9 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 #### Frontend functional coverage checklist
 
 - **Organize by data state:** normal display | normal interaction | empty display/interaction | abnormal/fail display/interaction
-- **No login dimension** if product says show/hide follows API data only
+- **No login dimension for module content** if product says show/hide follows API data only
+- **User-personal state (when product has help/adopt-like actions):** no token → skip user-state query, show default unacted UI; gated click → login → resume original action; login cancel/fail → no fake success
+- **API capability ≠ FE path:** if backend supports cancel/dislike but PRD does not, FE has no entry; do not write FE cancel happy path
 - Placement / structure vs **UI design** (not pixel-perfect unless asked)
 - Render API values as-is (count and content); do not invent missing metrics in FE
 - Interactions from PRD (expand, swipe, sticky tab highlight, switch entity)
@@ -201,7 +204,7 @@ python3 "${SKILL_ROOT}/scripts/write_cases_xlsx.py" \
 - Data-driven tabs: hardcoded labels, visibility from section data
 - Series/context binding: no cross-entity stale UI after switch; expand state reset on switch unless PRD says remember
 - Multi width / rapid click as needed
-- **Never:** “匿名可浏览” as FE case when data-driven; never own API required-metric checklist in FE expects
+- **Never:** “匿名可浏览**模块内容**” as FE case when content is data-driven; never own API required-metric checklist in FE expects
 
 - **外显字段类型异常（强制，见 `display-field-abnormal-matrix.md`）** — 凡接口字段会在页面展示，必须按类型做异常（可与正常展示/交互用例并列，不得删减强制矩阵）：
   - `int`：负数、0、正数

@@ -31,10 +31,13 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
 6. Risk/policy offline often = **success code + empty body** (e.g. `data:{}`) by entity id — not 500, not param 400.
 7. Empty success body may be **minimal `{}`** or **structured empty** (keys present, empty arrays) — cover both; neither is transport failure.
 8. Auth/anonymous access belongs in **API** cases only.
+9. **User-scoped read/write:** help/adopt-style APIs are often `userId × objectKey × sourceType` — not global counters; isolation cases across users are P0.
+10. **Product-locked action enum:** if product only allows one status (e.g. adopt only), API happy path covers that value; other enums in old docs are robustness/notes, not FE success paths.
+11. **Field alias / rename:** prefer current card/list contract key names; older doc aliases need a single primary + PRD-override remark, not dual conflicting expects.
 
 ## Frontend functional cases
 
-1. **Data-driven only:** FE cares about **是否有数据、数据是否正常** — not login state. 有数据→展示与交互；空数据→不展示/对应交互；异常数据→兼容展示与交互。
+1. **Data-driven only (module content):** FE cares about **是否有数据、数据是否正常** for **module content show/hide** — not login. 有数据→展示与交互；空数据→不展示/对应交互；异常数据→兼容展示与交互。
 2. Structure FE suites as: **正常数据展示** | **正常数据交互** | **空数据展示/交互** | **异常/失败展示/交互**.
 3. Styles follow **UI mockups**; interactions follow **PRD**; field values follow **API response**.
 4. Truncation/expand depend on font/line-height/width — assert behavior, not magic char counts unless PRD says so.
@@ -43,7 +46,10 @@ This file holds **stable, generalized** lessons. Agents may propose append-only 
 7. Hardcoded tab **labels** may be FE-fixed; **visibility** is data-driven (show tab only if that section has data).
 8. **Do not merge hide scenarios:** risk empty-success, network, 4xx/5xx, wrong data, business empty — separate FE cases.
 9. Do not mix content-generation quality suites into pure FE unless user asks; light content checks OK as P2.
-10. Never put “anonymous/login can browse” as FE case if show/hide is purely API-data-driven — put auth on API side.
+10. Never put “anonymous/login can browse **module content**” as FE case if content show/hide is purely API-data-driven — put pure API auth on API side.
+11. **User-personal action state (append, does not replace #1):** guest pages may exist; **personal flags** (e.g. already helped/adopted) are **user-scoped**. No token → **do not call user-state query**; show **default unacted** control copy.
+12. **Login-gated clicks + resume:** unauthenticated click on gated CTA → go login → on success **resume the original action** (submit or navigate); login cancel/fail → no fake success UI.
+13. **API capability ≠ FE product path:** backend may support cancel/dislike; if PRD does not require them, **FE has no entry** and FE cases only assert absence — do not force cancel happy-path in FE.
 
 ## Display fields from API (前端外显) — mandatory
 
@@ -84,6 +90,8 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 6. Never commit local memory or real project cases into the skill repository.
 7. First `snapshot` empty on a new machine is normal.
 8. **Append-only experience (strict):** new lessons that do **not** conflict with old playbook/memory → **add only, never delete old**. If they **conflict** → **ask the user**; do not auto-drop prior rules. Checklist rewrites must keep prior mandatory detail bullets.
+9. **STEP xlsx merge (mandatory):** multi-step cases must merge meta columns (name/module/tags/pre/mode/remark/status/owner/level); only 步骤描述/预期结果 stay per-row. Prefer `scripts/write_cases_xlsx.py`. Ad-hoc writers without merge produce “empty name + orphan steps” false positives.
+10. Delivery notes for interactive modules should lock: business key field, user-dimension model, guest/token policy, and which API enums are **out of FE product path**.
 
 ## Suggested future upgrades (agents may add below)
 
@@ -97,3 +105,6 @@ Full matrix: `references/display-field-abnormal-matrix.md`.
 - 2026-07-22: Append-only memory/playbook — never delete non-conflicting prior experience; conflicts escalate to user.
 - 2026-07-23: Field-refined case rules overlay — per-field cases, dual expects, no batch-by-type; PRD overrides defaults.
 - 2026-07-23: User locked priority: module PRD explicit > Prompt/matrix defaults; annotate PRD覆盖默认矩阵.
+- 2026-07-23: User-personal state vs module content: data-driven content + token-gated personal actions; guest skip user-query; login resume; API cancel/dislike may exist without FE entry.
+- 2026-07-23: User-scoped API dimension (user × object key × source); product-locked single action enum; primary field name from current contract.
+- 2026-07-23: STEP multi-row **must** cell-merge meta columns; always prefer write_cases_xlsx.py for export.
